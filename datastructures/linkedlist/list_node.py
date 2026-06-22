@@ -97,4 +97,18 @@ class ListNode:
             result.append(str(current.value))
             current = current.next
         return '->'.join(result)
+    
+    @staticmethod
+    def has_cycle(head: Optional['ListNode']) -> bool:
+        if not head:
+            return False
+        slow_ptr = head
+        fast_ptr = head
+
+        while fast_ptr and fast_ptr.next:
+            slow_ptr = slow_ptr.next
+            fast_ptr = fast_ptr.next.next
+            if id(fast_ptr) == id(slow_ptr): # id() ? returns the memory reference of an object
+                return True
+        return False
 
