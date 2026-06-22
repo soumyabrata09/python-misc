@@ -4,6 +4,9 @@ from typing import List, Optional
 This class creates a singly linked list
 """
 class ListNode:
+    size: int = 0
+    removed_node: Optional['ListNode'] = None
+    
     def __init__(self, value: int = 0, next: Optional['ListNode'] = None) -> None:
         self.value = value
         self.next = next
@@ -15,24 +18,8 @@ class ListNode:
     Returns:
         head node of the linked list
     Example:
-        build_list([2,4,7])
+        ListNode.from_list([2,4,7])
         2 -> 4 -> 7
-    """
-    # def build_list(self, arr: List[int]) -> Optional['ListNode']:
-    #     if not arr:
-    #         return None
-    #     head: 'ListNode' = ListNode()
-    #     current_node: 'ListNode' = head
-
-    #     for i in range(len(arr)):
-    #         current_node.next = ListNode(arr[i])
-    #         current_node = current_node.next
-        
-    #     return head.next
-    
-    """
-    Usage:
-        ListNode.from_list([2, 1, 3, 5]) etc.
     """
     @classmethod
     def from_list(cls, arr: List[int]) -> Optional['ListNode']:
@@ -44,7 +31,12 @@ class ListNode:
         for value in arr:
             current_node.next = cls(value)
             current_node = current_node.next
+            cls.size += 1
         return head.next
+    
+    @classmethod
+    def get_size(cls) -> int:
+        return cls.size
 
     """
     Creates a cycle within a linked list
@@ -111,4 +103,46 @@ class ListNode:
             if id(fast_ptr) == id(slow_ptr): # id() ? returns the memory reference of an object
                 return True
         return False
+    
+    def reverse(self, head: Optional['ListNode']) -> Optional['ListNode']:
+        if not head:
+            return None
+        
+        prev_node = None
+        current_node = head
 
+        while current_node: 
+            next_node = current_node.next
+            current_node.next = prev_node
+            prev_node = current_node
+            current_node = next_node
+        return prev_node
+
+    def remove_nth_from_end(self, head: Optional['ListNode'], position_from_end: int) -> Optional['ListNode']:
+        if not head:
+            return None
+        if position_from_end <= 0:
+            raise ValueError('Positional value should not be negative')
+
+        dummy: Optional['ListNode'] = ListNode(0, head)
+        fast_ptr = dummy
+        slow_ptr = dummy
+        
+        for _ in range(position_from_end):
+            if not fast_ptr.next:
+                raise ValueError(f'position {position_from_end} exceeds the length of the list')
+            fast_ptr = fast_ptr.next
+        
+        while fast_ptr.next:
+            slow_ptr = slow_ptr.next
+            fast_ptr = fast_ptr.next
+        ListNode.removed_node = slow_ptr.next
+        slow_ptr.next = slow_ptr.next.next
+        ListNode.size -= 1
+
+        return dummy.next
+    
+    @classmethod
+    def get_removed_node(cls) -> Optional['ListNode']:
+        cls.removed_node.next = None
+        return cls.removed_node
